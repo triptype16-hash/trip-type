@@ -1,0 +1,163 @@
+---
+import { questions } from "../../data/questions";
+---
+
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <title>旅行タイプ診断</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <style>
+      body {
+        max-width: 720px;
+        margin: 0 auto;
+        padding: 16px;
+        line-height: 1.8;
+        font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue",
+          Arial, "Noto Sans JP", "Hiragino Sans", "Yu Gothic", sans-serif;
+      }
+      h1 {
+        font-size: 22px;
+        margin: 0 0 8px;
+      }
+      #progress {
+        color: #666;
+        margin: 0 0 16px;
+      }
+      #question {
+        font-size: 18px;
+        margin: 0 0 12px;
+      }
+      button {
+        display: block;
+        width: 100%;
+        margin: 8px 0;
+        padding: 12px;
+        font-size: 16px;
+        border: 1px solid #ddd;
+        border-radius: 12px;
+        background: #fff;
+        cursor: pointer;
+      }
+      button:active {
+        transform: translateY(1px);
+      }
+    </style>
+  </head>
+
+  <body>
+    <h1>旅行タイプ診断</h1>
+
+    <p id="progress"></p>
+    <h2 id="question"></h2>
+    <div id="choices"></div>
+
+    <script define:vars={{ questions }}>
+      let index = 0;
+
+      // 5軸スコア（Companyも含めて計算・表示用に保持）
+      const scores = {
+        Tactics: { Planned: 0, Flexible: 0 },
+        Discovery: { Classic: 0, Exploring: 0 },
+        Comfort: { Luxurious: 0, Budget: 0 },
+        Pace: { Active: 0, Relaxed: 0 },
+        Company: { Group: 0, Solo: 0 },
+      };
+
+      const SCALE = [3, 2, 1, 0, -1, -2, -3];
+      const LABELS = [
+        "そう思う",
+        "ややそう思う",
+        "どちらかといえばそう思う",
+        "どちらでもない",
+        "どちらかといえばそう思わない",
+        "ややそう思わない",
+        "そう思わない",
+      ];
+
+      const progressEl = document.getElementById("progress");
+      const questionEl = document.getElementById("question");
+      const choicesEl = document.getElementById("choices");
+
+      function render() {
+        const q = questions[index];
+        progressEl.textContent = `${index + 1} / ${questions.length}`;
+        questionEl.textContent = q.text;
+        choicesEl.innerHTML = "";
+
+        LABELS.forEach((label, i) => {
+          const btn = document.createElement("button");
+          btn.textContent = label;
+          btn.onclick = () => answer(q.axis, q.side, SCALE[i]);
+          choicesEl.appendChild(btn);
+        });
+      }
+
+      function otherSide(axis, side) {
+        return Object.keys(scores[axis]).find((s) => s !== side);
+      }
+
+      function answer(axis, side, value) {
+        if (value > 0) {
+          scores[axis][side] += value;
+        } else if (value < 0) {
+          const os = otherSide(axis, side);
+          scores[axis][os] += Math.abs(value);
+        }
+        index++;
+
+        if (index < questions.length) {
+          render();
+        } else {
+          finish();
+        }
+      }
+
+      // 軸の%を作る（MBTIみたいに左右の%を出す）
+      // scoreA / (scoreA + scoreB) * 100（0-100）
+      function axisPercent(axis, sideA) {
+        const keys = Object.keys(scores[axis]);
+        const sideB = keys.find((k) => k !== sideA);
+        const a = scores[axis][sideA];
+        const b = scores[axis][sideB];
+        const total = a + b;
+        if (!total) return 50; // 全部0なら50/50
+        return Math.round((a / total) * 100);
+      }
+
+      function finish() {
+        // 保存（結果ページで復元できるように）
+        localStorage.setItem("travelScores", JSON.stringify(scores));
+
+        // ✅ 結果コードは4軸のみ（Companyは含めない）
+        const result =
+          (scores.Tactics.Planned >= scores.Tactics.Flexible ? "P" : "F") +
+          (scores.Discovery.Classic >= scores.Discovery.Exploring ? "C" : "E") +
+          (scores.Comfort.Luxurious >= scores.Comfort.Budget ? "L" : "B") +
+          (scores.Pace.Active >= scores.Pace.Relaxed ? "A" : "R");
+
+        // ✅ 5軸の%（左側の%を持つ。右側は 100 - 左 で表現）
+        // パラメータ名は短く：t,d,c,p,co
+        const t = axisPercent("Tactics", "Planned");      // Planned%
+        const d = axisPercent("Discovery", "Classic");    // Classic%
+        const c = axisPercent("Comfort", "Luxurious");    // Luxurious%
+        const p = axisPercent("Pace", "Active");          // Active%
+        const co = axisPercent("Company", "Group");       // Group%
+
+        const qs = new URLSearchParams({
+          t: String(t),
+          d: String(d),
+          c: String(c),
+          p: String(p),
+          co: String(co),
+        });
+
+        localStorage.setItem("tripType:lastResult", result);
+
+        location.href = `/result/${result}?${qs.toString()}`;
+      }
+
+      render();
+    </script>
+  </body>
+</html>

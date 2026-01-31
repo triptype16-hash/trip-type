@@ -1,0 +1,584 @@
+---
+import { types } from "../../data/types";
+
+export function getStaticPaths() {
+  return Object.keys(types).map((type) => ({ params: { type } }));
+}
+
+const { type } = Astro.params;
+const data = types[type];
+---
+
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content={data.catchcopy} />
+
+    <style is:global>
+      :root{
+        --bg: #f6f7fb;
+        --text: #101828;
+        --muted: rgba(16,24,40,.70);
+        --card: #ffffff;
+        --line: rgba(16,24,40,.12);
+        --shadow: 0 10px 30px rgba(16,24,40,.08);
+        --radius: 18px;
+
+        --accent: #5b6cff;
+        --accent2: #6ee7ff;
+      }
+
+      *{ box-sizing:border-box; }
+      html,body{ height:100%; }
+      body{
+        margin:0;
+        font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans JP", "Hiragino Sans", "Yu Gothic", sans-serif;
+        background: var(--bg);
+        color: var(--text);
+        line-height: 1.9;
+      }
+      a{ color: var(--accent); text-decoration: none; }
+      a:hover{ text-decoration: underline; }
+
+      .container{
+        max-width: 920px;
+        margin: 0 auto;
+        padding: 16px 16px 64px;
+      }
+
+      /* ===== Top Bar ===== */
+      .topbar{
+        display:flex;
+        justify-content: space-between;
+        align-items:center;
+        gap: 12px;
+        margin: 8px 0 14px;
+      }
+      .topbar a{
+        font-weight: 700;
+        font-size: 14px;
+        padding: 10px 12px;
+        border: 1px solid var(--line);
+        border-radius: 999px;
+        background: rgba(255,255,255,.8);
+        backdrop-filter: blur(6px);
+      }
+      .topbar a:hover{ text-decoration:none; }
+
+      /* ===== Layout (desktop ad aside) ===== */
+      .layout{
+        display: grid;
+        gap: 16px;
+      }
+      @media (min-width: 980px){
+        .layout{
+          grid-template-columns: minmax(0, 1fr) 300px;
+          align-items: start;
+        }
+      }
+
+      /* ===== Hero ===== */
+      .hero{
+        border-radius: 24px;
+        padding: 22px 18px;
+        background: radial-gradient(1200px 500px at 0% 0%, rgba(255,255,255,.85), rgba(255,255,255,.65)),
+                    linear-gradient(135deg, color-mix(in srgb, var(--accent) 65%, #ffffff 35%), color-mix(in srgb, var(--accent2) 45%, #ffffff 55%));
+        box-shadow: var(--shadow);
+        border: 1px solid rgba(255,255,255,.65);
+        position: relative;
+        overflow: hidden;
+      }
+      .hero::after{
+        content:"";
+        position:absolute;
+        inset:-80px -120px auto auto;
+        width: 320px;
+        height: 320px;
+        border-radius: 50%;
+        background: rgba(255,255,255,.25);
+        transform: rotate(20deg);
+      }
+      .heroInner{
+        position: relative;
+        display: grid;
+        gap: 10px;
+      }
+
+      /* バッジ：コードだけ */
+      .badge{
+        display:inline-flex;
+        align-items:center;
+        width: fit-content;
+        padding: 6px 10px;
+        border-radius: 999px;
+        background: rgba(255,255,255,.75);
+        border: 1px solid rgba(16,24,40,.10);
+        font-weight: 900;
+        font-size: 12px;
+        color: rgba(16,24,40,.85);
+        letter-spacing: .06em;
+      }
+
+      .heroTitle{
+        margin: 0;
+        font-size: 30px;
+        line-height: 1.25;
+        letter-spacing: .01em;
+      }
+
+      .heroCatch{
+        margin: 2px 0 0;
+        font-size: 18px;
+        color: rgba(16,24,40,.88);
+        white-space: pre-wrap;
+        font-weight: 700;
+        line-height: 1.7;
+      }
+
+      /* ★② 画像枠（キャッチコピーの下） */
+      .heroImageSlot{
+        margin-top: 10px;
+        border-radius: 18px;
+        border: 1px solid rgba(16,24,40,.10);
+        background: rgba(255,255,255,.75);
+        overflow: hidden;
+        position: relative;
+        box-shadow: 0 10px 22px rgba(16,24,40,.06);
+      }
+      .heroImageSlot::before{
+        content:"";
+        display:block;
+        aspect-ratio: 16 / 7;
+      }
+      .heroImageSlotInner{
+        position:absolute;
+        inset:0;
+        display:flex;
+        align-items:center;
+        justify-content:center;
+        padding: 10px;
+        color: rgba(16,24,40,.55);
+        font-weight: 800;
+        font-size: 13px;
+        text-align:center;
+      }
+      /* 画像を入れる場合は、この img を使ってください（下のHTMLコメント参照） */
+      .heroImageSlot img{
+        position:absolute;
+        inset:0;
+        width:100%;
+        height:100%;
+        object-fit: cover;
+      }
+
+      /* ===== Sections ===== */
+      .grid{
+        display: grid;
+        gap: 14px;
+        margin-top: 14px;
+      }
+      .section{
+        background: var(--card);
+        border: 1px solid var(--line);
+        border-radius: var(--radius);
+        padding: 16px 16px;
+        box-shadow: 0 6px 18px rgba(16,24,40,.05);
+      }
+      h2{
+        margin: 0 0 10px;
+        font-size: 18px;
+        letter-spacing: .01em;
+      }
+      h3{
+        margin: 18px 0 10px;
+        font-size: 16px;
+      }
+      .pre{ white-space: pre-wrap; margin:0; color: rgba(16,24,40,.88); }
+
+      .pairBox{
+        display: grid;
+        gap: 12px;
+      }
+      .divider{
+        height: 1px;
+        background: rgba(16,24,40,.10);
+        margin: 2px 0;
+      }
+
+      /* ===== Rank Cards ===== */
+      .ranklist{
+        display: grid;
+        gap: 10px;
+        padding: 0;
+        list-style: none;
+        margin: 10px 0 0;
+      }
+      .card{
+        border: 1px solid var(--line);
+        border-radius: 16px;
+        padding: 14px;
+        background: #fff;
+      }
+      .rankLine{
+        display:flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        align-items: baseline;
+        margin-bottom: 8px;
+      }
+      .rankPill{
+        font-weight: 900;
+        font-size: 12px;
+        padding: 4px 10px;
+        border-radius: 999px;
+        background: rgba(16,24,40,.06);
+      }
+      .code{
+        font-weight: 900;
+        letter-spacing: .02em;
+      }
+      .name{
+        font-weight: 700;
+        color: rgba(16,24,40,.78);
+      }
+
+      /* ===== Balance Bars ===== */
+      #balanceSection { margin-top: 14px; }
+      .barRow { margin: 16px 0; }
+      .barTitle{
+        display:flex;
+        justify-content: space-between;
+        gap: 10px;
+        font-weight: 900;
+        font-size: 13px;
+        margin-bottom: 8px;
+        color: rgba(16,24,40,.90);
+      }
+      .barTitleLeft{
+        display:flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        align-items: baseline;
+      }
+      .barTitleLeft small{
+        font-weight: 800;
+        font-size: 12px;
+        color: rgba(16,24,40,.62);
+      }
+      .barTrack{
+        display:block;
+        height: 14px;
+        background: rgba(16,24,40,.08);
+        border-radius: 999px;
+        overflow:hidden;
+      }
+      .barFill{
+        height: 100%;
+        background: linear-gradient(90deg, var(--accent), var(--accent2));
+        border-radius: 999px;
+      }
+      .barLabels{
+        display:flex;
+        justify-content: space-between;
+        font-size: 12px;
+        color: var(--muted);
+        margin-top: 7px;
+      }
+      .barLabels span{
+        display:flex;
+        gap: 6px;
+        align-items: baseline;
+      }
+      .barLabels small{
+        font-size: 11px;
+        opacity: .8;
+        font-weight: 700;
+      }
+
+      /* ===== Ads ===== */
+      .adSlot{
+        background: rgba(255,255,255,.9);
+        border: 1px dashed rgba(16,24,40,.22);
+        border-radius: 16px;
+        padding: 12px;
+        color: rgba(16,24,40,.55);
+        font-weight: 800;
+        text-align:center;
+      }
+      .adSlot small{
+        display:block;
+        margin-top: 6px;
+        font-weight: 700;
+        opacity: .8;
+      }
+
+      /* スマホ：広告は最小限（上だけ） */
+      .adTop{ margin-top: 14px; }
+      .adMid{ display:none; }
+      .adSide{ display:none; }
+
+      /* PC：追加で途中＋右サイド */
+      @media (min-width: 980px){
+        .adMid{ display:block; }
+        .adSide{
+          display:block;
+          position: sticky;
+          top: 14px;
+        }
+      }
+
+      /* ===== Footer Link ===== */
+      .footerLink{
+        margin-top: 14px;
+        display:inline-block;
+        font-weight: 800;
+        padding: 10px 12px;
+        border-radius: 999px;
+        border: 1px solid var(--line);
+        background: rgba(255,255,255,.9);
+      }
+
+      @media (min-width: 860px){
+        .hero{ padding: 28px 26px; }
+        .heroTitle{ font-size: 34px; }
+        .heroCatch{ font-size: 20px; }
+        .grid{ gap: 16px; }
+        .section{ padding: 18px 18px; }
+        .heroImageSlot::before{ aspect-ratio: 16 / 6; }
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="container">
+      <div class="topbar">
+        <a href="/diagnosis">もう一度診断する</a>
+        <a href="/">トップに戻る</a>
+      </div>
+
+      <div class="layout">
+        <!-- ===== Main ===== -->
+        <div>
+          <header class="hero">
+            <div class="heroInner">
+              <div class="badge">{data.code}</div>
+
+              <h1 class="heroTitle">{data.name}</h1>
+              <p class="heroCatch">{data.catchcopy}</p>
+
+              <!-- ★② 画像を入れる場所 -->
+              <div class="heroImageSlot" aria-label="タイプ画像">
+                <!--
+                  ここに画像を入れる場合は、下の1行を使ってください（srcは差し替え）:
+
+                  <img src="/images/types/FELR.jpg" alt="FELRのイメージ画像" loading="lazy" />
+
+                  ※ public/images/types/ に置くのがおすすめ
+                -->
+                <div class="heroImageSlotInner">
+                  ここに画像を入れられます（16:7目安）
+                </div>
+              </div>
+            </div>
+          </header>
+
+          <!-- ★⑤ 広告枠（スマホも出すのはここ1つだけ） -->
+          <div class="adSlot adTop">
+            広告枠（トップ下）
+            <small>例：レスポンシブ広告 / 1枠だけ（スマホ優先でUXを守る）</small>
+          </div>
+
+          <main class="grid">
+            <!-- 旅の概要＋旅の相手（見出し消し） -->
+            <section class="section">
+              <div class="pairBox">
+                <p class="pre">{data.overview.trip}</p>
+                <div class="divider"></div>
+                <p class="pre">{data.overview.partner}</p>
+              </div>
+            </section>
+
+            <!-- ★③ 大切なこと＋過ごし方を同じ枠に統合（見出し消し） -->
+            <section class="section">
+              <div class="pairBox">
+                <p class="pre">{data.important}</p>
+                <div class="divider"></div>
+                <p class="pre">{data.spend}</p>
+              </div>
+            </section>
+
+            <section class="section">
+              <h2>相性</h2>
+              <p class="pre">{data.match.description}</p>
+
+              <h3>相性の良い旅行タイプ（1〜3位）</h3>
+              <ol class="ranklist">
+                {data.match.good.map((g, i) => (
+                  <li class="card">
+                    <div class="rankLine">
+                      <span class="rankPill">{i + 1}位</span>
+                      <a class="code" href={`/result/${g.code}`}>{g.code}</a>
+                      <span class="name">：{g.name}</span>
+                    </div>
+                    <p class="pre">{g.reason}</p>
+                  </li>
+                ))}
+              </ol>
+
+              <h3>チャレンジングな旅になるタイプ（1〜3位）</h3>
+              <ol class="ranklist">
+                {data.match.bad.map((b, i) => (
+                  <li class="card">
+                    <div class="rankLine">
+                      <span class="rankPill">{i + 1}位</span>
+                      <a class="code" href={`/result/${b.code}`}>{b.code}</a>
+                      <span class="name">：{b.name}</span>
+                    </div>
+                    <p class="pre">{b.reason}</p>
+                  </li>
+                ))}
+              </ol>
+            </section>
+
+            <!-- ★⑤ PCだけ途中にも広告枠（読み流れを壊しにくい位置） -->
+            <div class="adSlot adMid">
+              広告枠（途中）
+              <small>例：インフィード広告（PCのみ表示）</small>
+            </div>
+
+            <section class="section" id="balanceSection">
+              <h2>あなたのバランス</h2>
+              <div id="bars"></div>
+            </section>
+          </main>
+
+          <a class="footerLink" href="/">トップに戻る</a>
+        </div>
+
+        <!-- ===== Side (PC only) ===== -->
+        <aside class="adSlot adSide">
+          広告枠（サイド）
+          <small>例：300×600 / 300×250（PCだけ表示）</small>
+        </aside>
+      </div>
+    </div>
+
+    <script>
+      // ===== type color set =====
+      const COLOR_MAP = {
+        PCLA: ["#7C3AED", "#A78BFA"],
+        PCLR: ["#2563EB", "#93C5FD"],
+        PCBA: ["#059669", "#6EE7B7"],
+        PCBR: ["#0EA5E9", "#99F6E4"],
+        PELA: ["#F97316", "#FDBA74"],
+        PELR: ["#EF4444", "#FCA5A5"],
+        PEBA: ["#22C55E", "#BBF7D0"],
+        PEBR: ["#14B8A6", "#99F6E4"],
+        FCLA: ["#8B5CF6", "#C4B5FD"],
+        FCLR: ["#3B82F6", "#BFDBFE"],
+        FCBA: ["#10B981", "#A7F3D0"],
+        FCBR: ["#06B6D4", "#A5F3FC"],
+        FELA: ["#FB7185", "#FECDD3"],
+        FELR: ["#F59E0B", "#FDE68A"],
+        FEBA: ["#84CC16", "#D9F99D"],
+        FEBR: ["#6366F1", "#C7D2FE"],
+      };
+
+      const currentType = location.pathname.split("/").filter(Boolean).pop();
+      const pair = COLOR_MAP[currentType];
+      if (pair) {
+        document.documentElement.style.setProperty("--accent", pair[0]);
+        document.documentElement.style.setProperty("--accent2", pair[1]);
+      }
+
+      // ===== balance bars (④ 日本語併記 + Pace/Companyは左右指定に合わせて反転) =====
+      const params = new URLSearchParams(location.search);
+
+      // 診断から来る想定の値
+      const raw = {
+        t: Number(params.get("t")),   // Planned %
+        d: Number(params.get("d")),   // Classic %
+        c: Number(params.get("c")),   // Luxurious %
+        p: Number(params.get("p")),   // Active %（※表示はRelaxedが左指定なので反転）
+        co: Number(params.get("co")), // Group %（※表示はSoloが左指定なので反転）
+      };
+
+      const clamp01 = (n) => Math.max(0, Math.min(100, n));
+
+      // 表示用の「左％」を確定（左ラベルに対応する値）
+      const leftPercent = {
+        Tactics: Number.isFinite(raw.t) ? clamp01(raw.t) : 50,                 // Planned
+        Discovery: Number.isFinite(raw.d) ? clamp01(raw.d) : 50,               // Classic
+        Comfort: Number.isFinite(raw.c) ? clamp01(raw.c) : 50,                 // Luxurious
+        Pace: Number.isFinite(raw.p) ? clamp01(100 - raw.p) : 50,              // Relaxed（= 100 - Active）
+        Company: Number.isFinite(raw.co) ? clamp01(100 - raw.co) : 50,         // Solo（= 100 - Group）
+      };
+
+      // 軸・ラベルの日本語表記（指定どおり）
+      const AXES = [
+        {
+          key: "Tactics",
+          jpAxis: "旅行の進め方",
+          left: { en: "Planned", jp: "計画" },
+          right:{ en: "Flexible", jp: "柔軟" },
+        },
+        {
+          key: "Discovery",
+          jpAxis: "旅行の経験",
+          left: { en: "Classic", jp: "定番" },
+          right:{ en: "Exploring", jp: "冒険" },
+        },
+        {
+          key: "Comfort",
+          jpAxis: "快適さへの価値観",
+          left: { en: "Luxurious", jp: "贅沢" },
+          right:{ en: "Budget", jp: "節約" },
+        },
+        {
+          key: "Pace",
+          jpAxis: "旅行のペース",
+          // 指定：Relaxed → Active（左→右）
+          left: { en: "Relaxed", jp: "ゆったり" },
+          right:{ en: "Active", jp: "活動的" },
+        },
+        {
+          key: "Company",
+          jpAxis: "旅行の人数",
+          // 指定：Solo → Group（左→右）
+          left: { en: "Solo", jp: "一人旅" },
+          right:{ en: "Group", jp: "グループ旅行" },
+        },
+      ];
+
+      const barsEl = document.getElementById("bars");
+      if (barsEl) {
+        barsEl.innerHTML = AXES.map((a) => {
+          const leftVal = leftPercent[a.key];
+          const rightVal = 100 - leftVal;
+
+          return `
+            <div class="barRow">
+              <div class="barTitle">
+                <div class="barTitleLeft">
+                  <span>${a.key}</span>
+                  <small>（${a.jpAxis}）</small>
+                </div>
+                <span>${leftVal}% / ${rightVal}%</span>
+              </div>
+
+              <div class="barTrack">
+                <div class="barFill" style="width:${leftVal}%"></div>
+              </div>
+
+              <div class="barLabels">
+                <span>${a.left.en}<small>（${a.left.jp}）</small></span>
+                <span>${a.right.en}<small>（${a.right.jp}）</small></span>
+              </div>
+            </div>
+          `;
+        }).join("");
+      }
+    </script>
+  </body>
+</html>
