@@ -1,9 +1,12 @@
 ---
 import { types } from "../../data/types";
 
-export function getStaticPaths() {
-  return Object.keys(types).map((type) => ({ params: { type } }));
+export async function getStaticPaths() {
+  return Object.keys(types)
+    .filter((code) => /^[A-Z]{4}$/.test(code)) // 4文字大文字だけ = タイプだけ
+    .map((type) => ({ params: { type } }));
 }
+
 
 const { type } = Astro.params;
 const data = types[type];
