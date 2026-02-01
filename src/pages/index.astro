@@ -73,20 +73,36 @@ import { questions } from "../data/questions";
         line-height: 1.8;
       }
 
-      /* ===== 丸の選択UI（中央寄せ） ===== */
-      .scale {
-        display: grid;
-        grid-template-columns: auto 1fr auto;
-        align-items: center;
-        gap: 10px;
+      /* ===== ✅ スケール：2行構成 =====
+         1行目：丸（中央）
+         2行目：左端「そう思う」 / 右端「そう思わない」
+      */
+      .scale{
         margin-top: 10px;
         width: 100%;
+      }
+
+      /* 丸7個は常に中央 */
+      .scaleInner{
+  display: grid;
+  place-items: center;  /* ✅ 常に中央 */
+  width: 100%;
+}
+
+
+      .scaleLabels{
+        margin-top: 6px;
+        display: flex;
+        justify-content: space-between; /* ✅ 左右端 */
+        align-items: center;
+        width: 100%; /* ✅ カード全幅 */
       }
 
       .scaleLabel {
         font-weight: 900;
         font-size: 14px;
         white-space: nowrap;
+        line-height: 1.1;
       }
       .scaleLabel.left {
         color: #1DC4B8;
@@ -98,154 +114,131 @@ import { questions } from "../data/questions";
       }
 
       /* ===========================
-   7段階ラジオ：色＋押し心地（スカッと版）
-   ・初期は無色（全てグレー枠）
-   ・左3つ：緑、中央：グレー、右3つ：オレンジ
-   ・丸の外に色が出ない（外側shadow無し、insetのみ）
-   ・flexで潰れない（棒化防止）
-   =========================== */
+         7段階ラジオ：色＋押し心地（スカッと版）
+         =========================== */
 
-.dots {
+      .dots{
+  --dot: clamp(22px, 5.4vw, 28px);
+  --gap: clamp(8px, 2.4vw, 14px);
+
   display: flex;
-  gap: 14px;
   align-items: center;
   justify-content: center;
+  gap: var(--gap);
   flex-wrap: nowrap;
-  min-width: 0;
+
+  width: max-content;   /* ✅ 7個ぶんの幅＝中身ぴったり */
+  max-width: 100%;
 }
 
-.dotWrap {
-  position: relative;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
 
-  /* ✅ 棒化防止：潰れない */
-  flex: 0 0 auto;
-}
+      .dotWrap {
+        position: relative;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
 
-/* ラジオ本体は不可視 */
-.dotInput {
-  position: absolute;
-  opacity: 0;
-  pointer-events: none;
-}
+        /* ✅ 棒化防止 */
+        flex: 0 0 auto;
 
-/* 丸：見た目本体 */
-.dot {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-
-  width: 26px;
-  height: 26px;
-  min-width: 26px;
-  min-height: 26px;
-  flex: 0 0 26px;
-  box-sizing: border-box;
-
-  border-radius: 999px;
-
-  /* 初期（無色） */
-  border: 2px solid rgba(16, 24, 40, 0.35);
-  background: #fff;
-
-  /* 外に色を出さない */
-  box-shadow: inset 0 0 0 0 rgba(0,0,0,0);
-  outline: none;
-
-  cursor: pointer;
-  user-select: none;
-  -webkit-tap-highlight-color: transparent;
-
-  /* ✅ 押し心地：軽快な遷移 */
-  transition:
-    transform 90ms ease,
-    border-color 140ms ease,
-    background-color 140ms ease,
-    box-shadow 140ms ease,
-    filter 140ms ease;
-}
-
-/* ✅ “押せる予告”：hoverでわずかに浮く（影なし） */
-@media (hover: hover) {
-  .dotWrap:hover .dot {
-    transform: translateY(-1px);
-    filter: brightness(0.98);
-  }
-}
-
-/* ✅ 押した瞬間：沈む（スカッ） */
-.dotWrap:active .dot {
-  transform: translateY(0px) scale(0.92);
-}
-
-/* 位置ごとの色定義（※表示はしない。checked時だけ使う） */
-.dots > .dotWrap:nth-child(-n + 3) .dot {
-  --border: #1dc4b8;
-  --bg: rgba(29, 196, 184, 0.18);
-  --core: rgba(29, 196, 184, 0.55);
-}
-
-.dots > .dotWrap:nth-child(4) .dot {
-  --border: #9ca3af;
-  --bg: rgba(156, 163, 175, 0.18);
-  --core: rgba(156, 163, 175, 0.55);
-}
-
-.dots > .dotWrap:nth-child(n + 5) .dot {
-  --border: #e38b3d;
-  --bg: rgba(227, 139, 61, 0.18);
-  --core: rgba(227, 139, 61, 0.55);
-}
-
-/* ✅ “確定感”：checked時に縁＋薄い面＋内側リング＋軽いパチッ */
-.dotInput:checked + .dot {
-  border-color: var(--border);
-  background-color: var(--bg);
-
-  /* 外に出ない確定リング（inset） */
-  box-shadow: inset 0 0 0 3px var(--core);
-
-  /* ✅ パチッ感：一瞬だけ少し大きく（外影なし） */
-  animation: snap 150ms cubic-bezier(.2,.9,.2,1);
-}
-
-/* キーボード操作でも分かる（外に出さず内側で） */
-.dotInput:focus-visible + .dot {
-  border-color: var(--border);
-  background-color: var(--bg);
-  box-shadow: inset 0 0 0 3px var(--core);
-}
-
-/* ✅ スカッと：短く・強めのスナップ */
-@keyframes snap {
-  0%   { transform: scale(0.92); }
-  60%  { transform: scale(1.08); }
-  100% { transform: scale(1.00); }
-}
-
-/* 動き苦手な人には止める */
-@media (prefers-reduced-motion: reduce) {
-  .dot, .dotInput:checked + .dot { transition: none; animation: none; }
-}
-
-/* スマホで詰まるとき用：間隔だけ少し詰める */
-@media (max-width: 420px) {
-  .dots { gap: 10px; }
-}
-
-      @keyframes pop {
-        0%   { transform: scale(0.92); }
-        60%  { transform: scale(1.06); }
-        100% { transform: scale(1); }
+        /* ✅ タップしやすさ確保 */
+        width: max(34px, var(--dot));
+        height: max(34px, var(--dot));
       }
 
-@media (max-width: 420px) {
-  .dots { gap: 10px; }
-  .scaleLabel { font-size: 13px; }
-}
+      /* ラジオ本体は不可視 */
+      .dotInput {
+        position: absolute;
+        opacity: 0;
+        pointer-events: none;
+      }
 
+      /* 丸：見た目本体（押し心地/アニメ維持） */
+      .dot {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+
+        width: var(--dot);
+        height: var(--dot);
+        min-width: var(--dot);
+        min-height: var(--dot);
+        flex: 0 0 var(--dot);
+        box-sizing: border-box;
+
+        border-radius: 999px;
+
+        /* 初期（無色） */
+        border: 2px solid rgba(16, 24, 40, 0.35);
+        background: #fff;
+
+        /* 外に色を出さない */
+        box-shadow: inset 0 0 0 0 rgba(0,0,0,0);
+        outline: none;
+
+        cursor: pointer;
+        user-select: none;
+        -webkit-tap-highlight-color: transparent;
+
+        transition:
+          transform 90ms ease,
+          border-color 140ms ease,
+          background-color 140ms ease,
+          box-shadow 140ms ease,
+          filter 140ms ease;
+      }
+
+      @media (hover: hover) {
+        .dotWrap:hover .dot {
+          transform: translateY(-1px);
+          filter: brightness(0.98);
+        }
+      }
+
+      .dotWrap:active .dot {
+        transform: translateY(0px) scale(0.92);
+      }
+
+      .dots > .dotWrap:nth-child(-n + 3) .dot {
+        --border: #1dc4b8;
+        --bg: rgba(29, 196, 184, 0.18);
+        --core: rgba(29, 196, 184, 0.55);
+      }
+
+      .dots > .dotWrap:nth-child(4) .dot {
+        --border: #9ca3af;
+        --bg: rgba(156, 163, 175, 0.18);
+        --core: rgba(156, 163, 175, 0.55);
+      }
+
+      .dots > .dotWrap:nth-child(n + 5) .dot {
+        --border: #e38b3d;
+        --bg: rgba(227, 139, 61, 0.18);
+        --core: rgba(227, 139, 61, 0.55);
+      }
+
+      .dotInput:checked + .dot {
+        border-color: var(--border);
+        background-color: var(--bg);
+        box-shadow: inset 0 0 0 3px var(--core);
+        animation: snap 150ms cubic-bezier(.2,.9,.2,1);
+      }
+
+      .dotInput:focus-visible + .dot {
+        border-color: var(--border);
+        background-color: var(--bg);
+        box-shadow: inset 0 0 0 3px var(--core);
+      }
+
+      @keyframes snap {
+        0%   { transform: scale(0.92); }
+        60%  { transform: scale(1.08); }
+        100% { transform: scale(1.00); }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        .dot, .dotInput:checked + .dot { transition: none; animation: none; }
+      }
 
       /* ===== ボタン ===== */
       .actions {
@@ -253,7 +246,7 @@ import { questions } from "../data/questions";
         margin-top: 30px;
         min-height: 48px;
         display: flex;
-        justify-content: center; /* ✅ 結果を見るを中央へ */
+        justify-content: center;
         align-items: center;
       }
 
@@ -320,10 +313,7 @@ import { questions } from "../data/questions";
         }
       }
 
-      /* サイド広告枠：PCだけ表示（300×600固定） */
-      .adSide {
-        display: none;
-      }
+      .adSide { display: none; }
 
       @media (min-width: 980px) {
         .adSide {
@@ -332,7 +322,7 @@ import { questions } from "../data/questions";
           top: 14px;
 
           width: 300px;
-          height: 600px; /* ✅ 300×600 */
+          height: 600px;
           box-sizing: border-box;
 
           border: 1px dashed rgba(16, 24, 40, 0.28);
@@ -348,6 +338,45 @@ import { questions } from "../data/questions";
           margin-top: 6px;
           font-weight: 800;
           opacity: 0.85;
+        }
+      }
+
+      /* ===== ✅ スマホ調整 ===== */
+      @media (max-width: 420px) {
+        /* Q表示を少し小さく */
+        .qNum {
+          font-size: 15px;
+          padding: 3px 8px;
+        }
+        .qText {
+          font-size: 16px;
+          line-height: 1.75;
+        }
+
+        .scaleLabel { font-size: 13px; }
+
+        /* ボタン被りを解消：縦積み＋小さく */
+        .actions {
+          position: static;
+          min-height: auto;
+          flex-direction: column;
+          gap: 10px;
+          align-items: stretch;
+        }
+
+        .btn, .btnSub {
+          position: static;
+          width: 100%;
+          font-size: 16px;
+          padding: 11px 14px;
+          border-radius: 14px;
+        }
+      }
+
+      @media (max-width: 360px) {
+        .btn, .btnSub {
+          font-size: 15px;
+          padding: 10px 12px;
         }
       }
     </style>
@@ -376,38 +405,38 @@ import { questions } from "../data/questions";
                   <p class="qText">{q.text}</p>
                 </div>
 
+                {/* ✅ 2行構成：丸は中央、ラベルは左右端（1回だけ） */}
                 <div class="scale">
-                  <div class="scaleLabel left">そう思う</div>
-
-                  <div class="dots" role="radiogroup" aria-label={`Q${i + 1}`}>
-                    {[
-                      { v: 3, side: "green" },
-                      { v: 2, side: "green" },
-                      { v: 1, side: "green" },
-                      { v: 0, side: "gray" },
-                      { v: -1, side: "orange" },
-                      { v: -2, side: "orange" },
-                      { v: -3, side: "orange" },
-                    ].map((opt, j) => (
-                      <div class="dotWrap">
-                        <input
-                          class="dotInput"
-                          type="radio"
-                          id={`q${q.id}_${j}`}
-                          name={`q${q.id}`}
-                          value={String(opt.v)}
-                          required
-                        />
-                        <label
-                          class="dot"
-                          for={`q${q.id}_${j}`}
-                          aria-label="選択"
-                        />
-                      </div>
-                    ))}
+                  <div class="scaleInner">
+                    <div class="dots" role="radiogroup" aria-label={`Q${i + 1}`}>
+                      {[
+                        { v: 3, side: "green" },
+                        { v: 2, side: "green" },
+                        { v: 1, side: "green" },
+                        { v: 0, side: "gray" },
+                        { v: -1, side: "orange" },
+                        { v: -2, side: "orange" },
+                        { v: -3, side: "orange" },
+                      ].map((opt, j) => (
+                        <div class="dotWrap">
+                          <input
+                            class="dotInput"
+                            type="radio"
+                            id={`q${q.id}_${j}`}
+                            name={`q${q.id}`}
+                            value={String(opt.v)}
+                            required
+                          />
+                          <label class="dot" for={`q${q.id}_${j}`} aria-label="選択" />
+                        </div>
+                      ))}
+                    </div>
                   </div>
 
-                  <div class="scaleLabel right">そう思わない</div>
+                  <div class="scaleLabels" aria-hidden="true">
+                    <div class="scaleLabel left">そう思う</div>
+                    <div class="scaleLabel right">そう思わない</div>
+                  </div>
                 </div>
               </div>
 
