@@ -33,7 +33,7 @@ function renderBold(text) {
         --accent2: #6ee7ff;
 
         /* ★ Balance fixed colors (all types) */
-        --balance-left: #19c2b6;
+        --balance-left: #08254e;
         --balance-right: #f29952;
       }
 
@@ -126,12 +126,7 @@ function renderBold(text) {
   border-radius: 10px;
 
   /* ★ 濃いタイプ色 */
-  background: linear-gradient(
-    135deg,
-    var(--accent),
-    var(--accent2)
-  );
-
+  background: var(--accent);
   border: none;
 
   font-weight: 900;
@@ -173,7 +168,7 @@ function renderBold(text) {
       .heroImageSlot::before{
         content:"";
         display:block;
-        aspect-ratio: 16 / 7;
+        aspect-ratio: 16 / 9;
       }
       .heroImageSlotInner{
         position:absolute;
@@ -395,7 +390,7 @@ function renderBold(text) {
         .heroCatch{ font-size: 20px; }
         .grid{ gap: 16px; }
         .section{ padding: 18px 18px; }
-        .heroImageSlot::before{ aspect-ratio: 16 / 6; }
+        .heroImageSlot::before{ aspect-ratio: 16 / 9; }
       }
 
       /* Recommend Trips 内の strong だけ色をつける */
@@ -540,7 +535,7 @@ function renderBold(text) {
   <body>
     <div class="container">
       <div class="topbar">
-        <a href="/diagnosis">もう一度診断する</a>
+        <a href="/quiz">もう一度診断する</a>
         <a href="/">トップに戻る</a>
       </div>
 
@@ -558,17 +553,13 @@ function renderBold(text) {
 
               <!-- ★② 画像を入れる場所 -->
               <div class="heroImageSlot" aria-label="タイプ画像">
-                <!--
-                  ここに画像を入れる場合は、下の1行を使ってください（srcは差し替え）:
+  <img
+    src={`/types/${data.code}.png`}
+    alt={`${data.code}のイメージ画像`}
+    loading="lazy"
+  />
+</div>
 
-                  <img src="/images/types/FELR.jpg" alt="FELRのイメージ画像" loading="lazy" />
-
-                  ※ public/images/types/ に置くのがおすすめ
-                -->
-                <div class="heroImageSlotInner">
-                  ここに画像を入れられます（16:7目安）
-                </div>
-              </div>
             </div>
           </header>
 
