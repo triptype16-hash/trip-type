@@ -1,0 +1,57 @@
+---
+export const prerender = true;
+const title = "このサイトについて";
+---
+
+<html lang="ja">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <meta name="description" content="当サイトの概要・目的・運営方針について掲載しています。" />
+    <meta name="robots" content="index,follow" />
+  </head>
+  <body>
+    <main style="max-width: 900px; margin: 0 auto; padding: 24px;">
+      <h1>{title}</h1>
+
+      <p>
+        当サイトは、旅行の価値観・行動傾向をもとにタイプを分類し、
+        あなたに合った旅行のスタイルを見つけるための診断コンテンツを提供するサイトです。
+      </p>
+
+      <h2>目的</h2>
+      <p>
+        診断結果は娯楽および自己理解を目的としたものであり、結果の正確性や特定の行動・判断を保証するものではありません。
+      </p>
+
+      <h2>広告について</h2>
+      <p>
+        当サイトは、Google AdSense による広告配信を通じて収益を得る場合があります。
+      </p>
+
+      <h2>免責事項</h2>
+      <p>
+        当サイトの情報を利用することで生じた損害等について、当サイトは一切の責任を負いかねますので、あらかじめご了承ください。
+      </p>
+
+      <section style="margin-top: 48px;">
+  <h2>運営者情報</h2>
+  <p>
+    本サイトは、旅行や価値観の可視化に関心を持つ個人によって運営されています。
+    ご連絡は <a href="/contact">お問い合わせ</a> よりお願いいたします。
+  </p>
+</section>
+
+<section style="margin-top: 32px;">
+  <h2>コンテンツ制作方針</h2>
+  <p>
+    当サイトの診断ロジックおよび文章は、一般的な旅行行動の傾向を参考にしつつ、
+    娯楽性と自己理解を目的として独自に設計・作成しています。
+    特定の行動や判断を保証するものではありません。
+  </p>
+</section>
+
+    </main>
+  </body>
+</html>

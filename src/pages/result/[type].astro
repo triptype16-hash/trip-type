@@ -7,6 +7,10 @@ export function getStaticPaths() {
 
 const { type } = Astro.params;
 const data = types[type];
+
+function renderBold(text) {
+  return text.replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>");
+}
 ---
 
 <html lang="ja">
@@ -27,6 +31,10 @@ const data = types[type];
 
         --accent: #5b6cff;
         --accent2: #6ee7ff;
+
+        /* ★ Balance fixed colors (all types) */
+        --balance-left: #19c2b6;
+        --balance-right: #f29952;
       }
 
       *{ box-sizing:border-box; }
@@ -106,19 +114,35 @@ const data = types[type];
       }
 
       /* バッジ：コードだけ */
-      .badge{
-        display:inline-flex;
-        align-items:center;
-        width: fit-content;
-        padding: 6px 10px;
-        border-radius: 999px;
-        background: rgba(255,255,255,.75);
-        border: 1px solid rgba(16,24,40,.10);
-        font-weight: 900;
-        font-size: 12px;
-        color: rgba(16,24,40,.85);
-        letter-spacing: .06em;
-      }
+      /* バッジ：タイプコード（主役級） */
+
+/* バッジ：タイプコード（濃い背景で強調） */
+.badge{
+  display: inline-flex;
+  align-items: center;
+  width: fit-content;
+
+  padding: 2px 14px;
+  border-radius: 10px;
+
+  /* ★ 濃いタイプ色 */
+  background: linear-gradient(
+    135deg,
+    var(--accent),
+    var(--accent2)
+  );
+
+  border: none;
+
+  font-weight: 900;
+  font-size: 30px;
+  letter-spacing: .1em;
+
+  color: #ffffff; /* ★ 白文字でコントラスト */
+}
+
+
+
 
       .heroTitle{
         margin: 0;
@@ -171,6 +195,16 @@ const data = types[type];
         height:100%;
         object-fit: cover;
       }
+
+      /* PEBR と 日本語タイプ名を横並び */
+.heroTopLine{
+  display: flex;
+  align-items: baseline;   /* 文字のベースラインを揃える */
+  gap: 12px;
+  flex-wrap: wrap;         /* 画面が狭い時は自然に折り返す */
+}
+
+
 
       /* ===== Sections ===== */
       .grid{
@@ -243,56 +277,69 @@ const data = types[type];
         color: rgba(16,24,40,.78);
       }
 
-      /* ===== Balance Bars ===== */
+      /* ===== Balance Bars (UPDATED) ===== */
       #balanceSection { margin-top: 14px; }
-      .barRow { margin: 16px 0; }
+      .barRow { margin: 18px 0; }
+
+      /* ★ 軸タイトルを大きく＆中央寄せ */
       .barTitle{
-        display:flex;
-        justify-content: space-between;
-        gap: 10px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;     /* 中央 */
+        gap: 2px;
         font-weight: 900;
-        font-size: 13px;
-        margin-bottom: 8px;
+        font-size: 15px;         /* 少し大きく */
+        margin-bottom: 10px;
+        text-align: center;
         color: rgba(16,24,40,.90);
       }
-      .barTitleLeft{
-        display:flex;
-        flex-wrap: wrap;
-        gap: 6px;
-        align-items: baseline;
-      }
-      .barTitleLeft small{
+      .barTitle small{
         font-weight: 800;
         font-size: 12px;
-        color: rgba(16,24,40,.62);
+        color: rgba(16,24,40,.65);
       }
+
+      /* ★ バーを左右固定色に */
       .barTrack{
-        display:block;
+        display: flex;
         height: 14px;
         background: rgba(16,24,40,.08);
         border-radius: 999px;
         overflow:hidden;
       }
-      .barFill{
+      .barFillLeft{
         height: 100%;
-        background: linear-gradient(90deg, var(--accent), var(--accent2));
-        border-radius: 999px;
+        background: var(--balance-left);
       }
+      .barFillRight{
+        height: 100%;
+        background: var(--balance-right);
+      }
+
+      /* ★ ラベル色を左右で固定 */
       .barLabels{
         display:flex;
         justify-content: space-between;
         font-size: 12px;
-        color: var(--muted);
         margin-top: 7px;
       }
-      .barLabels span{
+      .barLabelLeft{
         display:flex;
         gap: 6px;
         align-items: baseline;
+        color: var(--balance-left);
+        font-weight: 800;
+      }
+      .barLabelRight{
+        display:flex;
+        gap: 6px;
+        align-items: baseline;
+        color: var(--balance-right);
+        font-weight: 800;
       }
       .barLabels small{
         font-size: 11px;
-        opacity: .8;
+        opacity: .85;
         font-weight: 700;
       }
 
@@ -325,6 +372,9 @@ const data = types[type];
           display:block;
           position: sticky;
           top: 14px;
+          width: 300px;
+          min-height: 600px;
+          padding: 18px;
         }
       }
 
@@ -347,6 +397,143 @@ const data = types[type];
         .section{ padding: 18px 18px; }
         .heroImageSlot::before{ aspect-ratio: 16 / 6; }
       }
+
+      /* Recommend Trips 内の strong だけ色をつける */
+      #recommendSection strong{
+        color: #1DC4B8;
+        font-weight: 900;
+      }
+
+      /* =========================
+         Recommend Trips (NEW)
+      ========================== */
+      .recWrap{
+        display: grid;
+        gap: 14px;
+      }
+      .recHeader{
+        display:flex;
+        flex-direction: column;
+        gap: 4px;
+        margin-bottom: 10px;
+      }
+      .recKicker{
+        font-weight: 900;
+        font-size: 12px;
+        letter-spacing: .08em;
+        text-transform: uppercase;
+        color: rgba(16,24,40,.62);
+      }
+      .recTitle{
+        margin: 0;
+        font-size: 18px;
+      }
+
+      .recCard{
+        border: 1px solid var(--line);
+        border-radius: 16px;
+        background: #fff;
+        overflow: hidden;
+      }
+      .recCardHead{
+        padding: 14px;
+        border-bottom: 1px solid rgba(16,24,40,.08);
+        background: rgba(255,255,255,.75);
+      }
+      .recDuration{
+        font-weight: 900;
+        font-size: 14px;
+      }
+      .recDuration .hl{
+        color: #F4A261;
+      }
+      .recMeta{
+        margin-top: 8px;
+        display: grid;
+        gap: 6px;
+      }
+      .recArea{
+        font-weight: 900;
+        font-size: 18px;
+        line-height: 1.4;
+      }
+      .recTripTitle{
+        font-weight: 800;
+        font-size: 14px;
+        color: rgba(16,24,40,.80);
+        line-height: 1.7;
+      }
+
+      .recBody{
+        padding: 14px;
+        display: grid;
+        gap: 12px;
+      }
+
+      .dayBlock{
+        border: 1px solid rgba(16,24,40,.10);
+        border-radius: 16px;
+        padding: 14px;
+        background: #fff;
+        box-shadow: 0 8px 18px rgba(16,24,40,.06);
+      }
+
+      .dayLabel{
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        font-weight: 900;
+        font-size: 13px;
+        margin-bottom: 10px;
+        padding: 6px 10px;
+        border-radius: 999px;
+        background: rgba(29,196,184,.12);
+        color: rgba(16,24,40,.88);
+      }
+
+      /* ===== Timeline ===== */
+      .steps{
+        list-style: none;
+        margin: 0;
+        padding-left: 22px;
+        display: grid;
+        gap: 10px;
+      }
+
+      .steps li{
+        position: relative;
+        padding-left: 14px;
+        margin: 0;
+        color: rgba(16,24,40,.88);
+      }
+
+      /* ●（ドット） */
+      .steps li::before{
+        content: "";
+        position: absolute;
+        left: -22px;
+        top: .62em;
+        width: 10px;
+        height: 10px;
+        border-radius: 999px;
+        background: #1DC4B8;
+      }
+
+      /* 縦の線（次の●へ） */
+      .steps li:not(:last-child)::after{
+        content: "";
+        position: absolute;
+        left: -17px;
+        top: calc(.62em + 10px);
+        width: 2px;
+        height: calc(100% - 10px);
+        background: rgba(29,196,184,.35);
+      }
+
+      /* 旅程の下に置く広告枠 */
+      .recAd{
+        margin-top: 10px;
+      }
     </style>
   </head>
 
@@ -362,9 +549,11 @@ const data = types[type];
         <div>
           <header class="hero">
             <div class="heroInner">
-              <div class="badge">{data.code}</div>
+              <div class="heroTopLine">
+                <div class="badge">{data.code}</div>
 
-              <h1 class="heroTitle">{data.name}</h1>
+                <h1 class="heroTitle">{data.name}</h1>
+              </div>
               <p class="heroCatch">{data.catchcopy}</p>
 
               <!-- ★② 画像を入れる場所 -->
@@ -388,6 +577,11 @@ const data = types[type];
             広告枠（トップ下）
             <small>例：レスポンシブ広告 / 1枠だけ（スマホ優先でUXを守る）</small>
           </div>
+
+          <p style="margin: 10px 2px 0; font-size: 12px; color: rgba(16,24,40,.60);">
+  ※本結果は、回答傾向から読み取れる傾向を表現したものであり、すべての行動や嗜好を断定するものではありません。
+</p>
+
 
           <main class="grid">
             <!-- 旅の概要＋旅の相手（見出し消し） -->
@@ -451,6 +645,135 @@ const data = types[type];
               <h2>あなたのバランス</h2>
               <div id="bars"></div>
             </section>
+
+            <!-- =========================
+                 Recommend Trips (NEW)
+                 「あなたのバランス」の下
+            ========================== -->
+            <section class="section" id="recommendSection">
+              <div class="recHeader">
+                <h2 class="recTitle">おすすめの旅行先・旅程</h2>
+              </div>
+
+              {data.recommendTrips ? (
+                <div class="recWrap">
+                  {/* 週末 */}
+                  {data.recommendTrips.weekend && (
+                    <div class="recCard">
+                      <div class="recCardHead">
+                        <div class="recDuration">
+                          <span class="hl">週末</span>に旅行へ行くなら
+                        </div>
+                        <div class="recMeta">
+                          <div class="recArea" set:html={renderBold(data.recommendTrips.weekend.area)} />
+                          <div class="recTripTitle" set:html={renderBold(data.recommendTrips.weekend.title)} />
+                        </div>
+                      </div>
+
+                      <div class="recBody">
+                        <div>
+                          <h3 style="margin:0 0 8px;">モデル旅程</h3>
+
+                          {data.recommendTrips.weekend.itinerary?.map((d) => (
+                            <div class="dayBlock">
+                              <div class="dayLabel">{d.dayLabel}</div>
+                              <ol class="steps">
+                                {d.items?.map((it) => (
+                                  <li set:html={renderBold(it)} />
+                                ))}
+                              </ol>
+                            </div>
+                          ))}
+                        </div>
+
+                        <div class="adSlot recAd">
+                          {data.recommendTrips.weekend.adLabel || "広告枠（行き先関連）"}
+                          <small>例：ツアー / 旅館 / 交通 / 体験 など</small>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* 連休 */}
+                  {data.recommendTrips.holiday && (
+                    <div class="recCard">
+                      <div class="recCardHead">
+                        <div class="recDuration">
+                          <span class="hl">連休</span>に旅行へ行くなら
+                        </div>
+                        <div class="recMeta">
+                          <div class="recArea" set:html={renderBold(data.recommendTrips.holiday.area)} />
+                          <div class="recTripTitle" set:html={renderBold(data.recommendTrips.holiday.title)} />
+                        </div>
+                      </div>
+
+                      <div class="recBody">
+                        <div>
+                          <h3 style="margin:0 0 8px;">モデル旅程</h3>
+
+                          {data.recommendTrips.holiday.itinerary?.map((d) => (
+                            <div class="dayBlock">
+                              <div class="dayLabel">{d.dayLabel}</div>
+                              <ol class="steps">
+                                {d.items?.map((it) => (
+                                  <li set:html={renderBold(it)} />
+                                ))}
+                              </ol>
+                            </div>
+                          ))}
+                        </div>
+
+                        <div class="adSlot recAd">
+                          {data.recommendTrips.holiday.adLabel || "広告枠（行き先関連）"}
+                          <small>例：ツアー / 旅館 / 交通 / 体験 など</small>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* 長期 */}
+                  {data.recommendTrips.long && (
+                    <div class="recCard">
+                      <div class="recCardHead">
+                        <div class="recDuration">
+                          <span class="hl">長期</span>で旅行へ行くなら
+                        </div>
+                        <div class="recMeta">
+                          <div class="recArea" set:html={renderBold(data.recommendTrips.long.area)} />
+                          <div class="recTripTitle" set:html={renderBold(data.recommendTrips.long.title)} />
+                        </div>
+                      </div>
+
+                      <div class="recBody">
+                        <div>
+                          <h3 style="margin:0 0 8px;">モデル旅程</h3>
+
+                          {data.recommendTrips.long.itinerary?.map((d) => (
+                            <div class="dayBlock">
+                              <div class="dayLabel">{d.dayLabel}</div>
+                              <ol class="steps">
+                                {d.items?.map((it) => (
+                                  <li set:html={renderBold(it)} />
+                                ))}
+                              </ol>
+                            </div>
+                          ))}
+                        </div>
+
+                        <div class="adSlot recAd">
+                          {data.recommendTrips.long.adLabel || "広告枠（行き先関連）"}
+                          <small>例：ツアー / 旅館 / 交通 / 体験 など</small>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <p class="pre">
+                  ※ このタイプのおすすめ旅行先・旅程は、現在準備中です。
+                </p>
+              )}
+            </section>
           </main>
 
           <a class="footerLink" href="/">トップに戻る</a>
@@ -458,8 +781,8 @@ const data = types[type];
 
         <!-- ===== Side (PC only) ===== -->
         <aside class="adSlot adSide">
-          広告枠（サイド）
-          <small>例：300×600 / 300×250（PCだけ表示）</small>
+          広告枠（300×600）
+          <small>PCのみ表示</small>
         </aside>
       </div>
     </div>
@@ -560,20 +883,23 @@ const data = types[type];
           return `
             <div class="barRow">
               <div class="barTitle">
-                <div class="barTitleLeft">
-                  <span>${a.key}</span>
-                  <small>（${a.jpAxis}）</small>
-                </div>
-                <span>${leftVal}% / ${rightVal}%</span>
-              </div>
+  <span>${a.key}（${a.jpAxis}）</span>
+  <small>${leftVal}% / ${rightVal}%</small>
+</div>
+
 
               <div class="barTrack">
-                <div class="barFill" style="width:${leftVal}%"></div>
+                <div class="barFillLeft" style="width:${leftVal}%"></div>
+                <div class="barFillRight" style="width:${rightVal}%"></div>
               </div>
 
               <div class="barLabels">
-                <span>${a.left.en}<small>（${a.left.jp}）</small></span>
-                <span>${a.right.en}<small>（${a.right.jp}）</small></span>
+                <span class="barLabelLeft">
+                  ${a.left.en}<small>（${a.left.jp}）</small>
+                </span>
+                <span class="barLabelRight">
+                  ${a.right.en}<small>（${a.right.jp}）</small>
+                </span>
               </div>
             </div>
           `;
